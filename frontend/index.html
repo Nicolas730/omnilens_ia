@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OmniLens AI - Sistema Omni-Modal Creativo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+body{background:#070711;color:#e2e8f0;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:16px}
+.app-container{width:100%;max-width:1340px;height:860px;background:#101020;border-radius:24px;display:flex;overflow:hidden;box-shadow:0 30px 70px rgba(0,0,0,.9);border:1px solid rgba(255,255,255,.06)}
+
+/* Sidebar */
+.sidebar{width:320px;background:#15152a;padding:22px;display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,.05)}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.logo{width:42px;height:42px;background:linear-gradient(135deg,#6366f1,#a855f7);border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:bold;font-size:18px;box-shadow:0 0 15px rgba(99,102,241,.4)}
+.brand-title{font-size:16px;font-weight:700;color:#fff}
+.brand-sub{font-size:11px;color:#34d399;font-weight:600}
+
+.section-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;margin-bottom:10px;font-weight:700}
+.drop-zone{background:#1b1b36;border:2px dashed #6366f1;border-radius:14px;padding:22px 14px;text-align:center;cursor:pointer;margin-bottom:20px;transition:.2s}
+.drop-zone:hover{background:#232347;border-color:#818cf8}
+
+.file-list{flex:1;overflow-y:auto;background:#16162f;border-radius:12px;padding:10px;margin-bottom:15px;border:1px solid rgba(255,255,255,.04)}
+.file-item{font-size:12px;padding:10px;border-bottom:1px solid rgba(255,255,255,.04);color:#cbd5e1;display:flex;align-items:center;gap:8px;cursor:pointer;border-radius:8px;transition:.2s}
+.file-item:hover{background:#232347;color:#fff}
+.file-item.active{background:rgba(99,102,241,.2);border:1px solid rgba(99,102,241,.5);color:#818cf8;font-weight:700}
+
+.system-status{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);padding:12px;border-radius:12px;display:flex;align-items:center;gap:10px;font-size:12px;color:#34d399}
+.status-dot{width:8px;height:8px;background:#34d399;border-radius:50%;box-shadow:0 0 8px #34d399}
+
+/* Chat Central */
+.chat-area{flex:1;display:flex;flex-direction:column;background:#101020}
+.chat-header{padding:18px 24px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;align-items:center;background:#131326}
+.chat-header h3{font-size:15px;color:#fff}
+.chat-header p{font-size:12px;color:#94a3b8}
+.badges{display:flex;gap:8px}
+.badge{background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:#818cf8;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:600}
+
+.messages-container{flex:1;padding:24px;overflow-y:auto;display:flex;flex-direction:column;gap:18px}
+.message{max-width:85%;padding:16px 20px;border-radius:18px;font-size:13px;line-height:1.6;white-space:pre-wrap;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.message.bot{background:#181830;color:#e2e8f0;align-self:flex-start;border-bottom-left-radius:4px;border:1px solid rgba(255,255,255,.04)}
+.message.user{background:#6366f1;color:#fff;align-self:flex-end;border-bottom-right-radius:4px;box-shadow:0 4px 15px rgba(99,102,241,.3)}
+
+.meta-tags{display:flex;gap:8px;margin-top:10px;font-size:11px;align-items:center;flex-wrap:wrap}
+.tag-page{background:rgba(52,211,153,.15);color:#34d399;padding:4px 10px;border-radius:6px;font-weight:700}
+.tag-time{background:rgba(99,102,241,.15);color:#818cf8;padding:4px 10px;border-radius:6px;font-weight:700}
+audio{width:100%;margin-top:10px;height:35px;border-radius:8px}
+
+.generated-media{margin-top:12px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.1);max-width:100%}
+.generated-media img{width:100%;height:auto;display:block}
+.video-card{background:#131326;border:1px solid rgba(99,102,241,.3);padding:14px;border-radius:10px;margin-top:10px}
+.video-card h4{color:#818cf8;font-size:13px;margin-bottom:6px}
+
+.chat-input-form{padding:18px 24px;background:#131326;display:flex;align-items:center;gap:12px;border-top:1px solid rgba(255,255,255,.05)}
+#query-input{flex:1;background:#181830;border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:12px 18px;color:#fff;font-size:13px;outline:none;transition:.2s}
+#query-input:focus{border-color:#6366f1;box-shadow:0 0 10px rgba(99,102,241,.2)}
+#send-btn{width:42px;height:42px;border-radius:50%;background:#6366f1;border:0;color:#fff;cursor:pointer;font-size:16px;display:grid;place-items:center;transition:.2s;box-shadow:0 4px 12px rgba(99,102,241,0.4)}
+#send-btn:hover{background:#4f46e5}
+
+/* Panel Derecho */
+.right-panel{width:260px;background:#15152a;padding:22px;display:flex;flex-direction:column;border-left:1px solid rgba(255,255,255,.05)}
+.info-card{flex:1;background:#16162f;border-radius:14px;border:1px solid rgba(255,255,255,.04);padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#94a3b8;font-size:13px}
+</style>
+</head>
+<body>
+<div class="app-container">
+  
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="brand">
+      <div class="logo">O</div>
+      <div>
+        <div class="brand-title">OmniLens AI</div>
+        <div class="brand-sub">Base de Conocimiento</div>
+      </div>
+    </div>
+
+    <div class="section-title">Añadir Recurso</div>
+    <div class="drop-zone" id="drop-zone">
+      <div style="font-size:26px;margin-bottom:6px">📂</div>
+      <div id="file-label" style="font-size:12px;font-weight:600;color:#fff">PDF, Audio, Video o Imagen</div>
+      <small style="color:#94a3b8;font-size:10px">Haz clic para subir archivo</small>
+    </div>
+
+    <div class="section-title">Archivos (Haz clic para seleccionar)</div>
+    <div class="file-list" id="file-list">
+      <div class="file-item" style="color:#64748b;font-style:italic">Cargando base de conocimiento...</div>
+    </div>
+
+    <div class="system-status">
+      <div class="status-dot"></div>
+      <div>Gemma2 Embeddings + Gemini</div>
+    </div>
+  </div>
+
+  <!-- Chat Central -->
+  <div class="chat-area">
+    <div class="chat-header">
+      <div>
+        <h3>Panel Omni-Modal Creativo</h3>
+        <p>Generación integrada de Texto, Audio, Imágenes y Video Conceptual</p>
+      </div>
+      <div class="badges">
+        <div class="badge">🧠 Gemma 2 (Local)</div>
+        <div class="badge">🎨 Generación Visual</div>
+      </div>
+    </div>
+
+    <div class="messages-container" id="messages-container">
+      <div class="message bot">
+        ¡Sistema listo! Selecciona tu PDF y pídeme: <br>• <i>"Dame una imagen o infografía de este tema"</i><br>• <i>"Críame la estructura de un video explicativo"</i>
+      </div>
+    </div>
+
+    <form class="chat-input-form" id="chat-form">
+      <input type="text" id="query-input" placeholder="Pide texto, análisis, imágenes o videos del PDF seleccionado..." autocomplete="off">
+      <button type="submit" id="send-btn">➤</button>
+    </form>
+  </div>
+
+  <!-- Panel Derecho -->
+  <div class="right-panel">
+    <div class="section-title" style="margin-bottom:12px">👁️ Recurso Seleccionado</div>
+    <div class="info-card" id="info-card">
+      Selecciona un archivo de la lista lateral.
+    </div>
+  </div>
+
+</div>
+
+<input type="file" id="file-input" accept="application/pdf,image/*,audio/*,video/*" hidden>
+
+<script>
+const BACKEND = "http://localhost:8000";
+const $ = id => document.getElementById(id);
+
+let currentSelectedFile = null;
+
+async function selectFile(filename) {
+    currentSelectedFile = filename;
+    const formData = new FormData();
+    formData.append("filename", filename);
+    await fetch(`${BACKEND}/api/select_file`, { method: "POST", body: formData });
+    
+    $('info-card').innerHTML = `<div style="color:#34d399;font-weight:600">Documento Activo:</div><br><strong>${filename}</strong><br><br><span style="color:#818cf8">Listo para consultas omnimodales</span>`;
+    loadFiles();
+    appendMessage('bot', `📌 Documento seleccionado: **${filename}**. ¡Pídeme texto, audio, imágenes o videos sobre él!`);
+}
+
+async function loadFiles() {
+    try {
+        const res = await fetch(`${BACKEND}/api/files`);
+        const data = await res.json();
+        const list = $('file-list');
+        if(data.files && data.files.length > 0) {
+            list.innerHTML = data.files.map(f => {
+                const isActive = f === currentSelectedFile ? 'active' : '';
+                return `<div class="file-item ${isActive}" onclick="selectFile('${f}')">📄 ${f}</div>`;
+            }).join('');
+        } else {
+            list.innerHTML = `<div class="file-item" style="color:#64748b;font-style:italic">Carpeta vacía</div>`;
+        }
+    } catch(e) {
+        $('file-list').innerHTML = `<div class="file-item" style="color:#f87171">Error de conexión</div>`;
+    }
+}
+loadFiles();
+
+$('drop-zone').onclick = () => $('file-input').click();$('file-input').onchange = async e => {
+    const file = e.target.files[0];
+    if(!file) return;
+    $('file-label').textContent = file.name;
+    
+    const formData = new FormData();
+    formData.append("file", file);
+    
+    const res = await fetch(`${BACKEND}/api/upload`, { method: "POST", body: formData });
+    const data = await res.json();
+    
+    if(data.status === "success") {
+        currentSelectedFile = file.name;
+        appendMessage('bot', `✅ ${data.message}`);
+        $('info-card').innerHTML = `<div style="color:#34d399;font-weight:600">Recurso Activo:</div><br><strong>${file.name}</strong><br><br><span style="color:#94a3b8">${data.message}</span>`;
+        loadFiles();
+    }
+};
+
+function appendMessage(role, text, time=null, page=null, audioUrl=null, imageUrl=null, wantsVideo=false) {
+    const div = document.createElement('div');
+    div.className = `message ${role}`;
+    div.textContent = text;
+    
+    if(role === 'bot') {
+        if(imageUrl) {
+            const imgContainer = document.createElement('div');
+            imgContainer.className = 'generated-media';
+            imgContainer.innerHTML = `<img src="${imageUrl}" alt="Imagen generada por IA" onerror="this.parentElement.style.display='none'">`;
+            div.appendChild(imgContainer);
+        }
+
+        if(wantsVideo) {
+            const videoCard = document.createElement('div');
+            videoCard.className = 'video-card';
+            videoCard.innerHTML = `
+                <h4>🎬 Tarjeta de Video Explicativo Generado</h4>
+                <p style="font-size:12px;color:#cbd5e1;margin-bottom:8px">Simulación de escaleta multimedia basada en tu documento:</p>
+                <div style="background:#0a0a16;padding:8px;border-radius:6px;font-size:11px;color:#34d399">
+                    ▶ [Escena 1: Introducción y Definición]<br>
+                    ▶ [Escena 2: Análisis del documento activo]<br>
+                    ▶ [Escena 3: Conclusiones del sistema experto]
+                </div>
+            `;
+            div.appendChild(videoCard);
+        }
+
+        const meta = document.createElement('div');
+        meta.className = 'meta-tags';
+        
+        if(page) {
+            const pb = document.createElement('span');
+            pb.className = 'tag-page';
+            pb.textContent = `🔖 Pág. {page}`.replace('{page}', page);
+            meta.appendChild(pb);
+        }
+        if(time) {
+            const tb = document.createElement('span');
+            tb.className = 'tag-time';
+            tb.textContent = `⏱️ {time}`.replace('{time}', time);
+            meta.appendChild(tb);
+        }
+        div.appendChild(meta);
+        
+        if(audioUrl) {
+            const audio = document.createElement('audio');
+            audio.controls = true;
+            audio.src = audioUrl;
+            div.appendChild(audio);
+        }
+    }
+    
+    $('messages-container').appendChild(div);
+    $('messages-container').scrollTop =$('messages-container').scrollHeight;
+}
+
+$('chat-form').onsubmit = async ev => {
+    ev.preventDefault();
+    const text = $('query-input').value.trim();
+    if(!text) return;
+    $('query-input').value = '';
+    
+    appendMessage('user', text);
+    const loadingId = 'loading-' + Date.now();
+    
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'message bot';
+    loadingDiv.id = loadingId;
+    loadingDiv.textContent = 'Procesando contenido omnimodal (Texto, Audio, Imagen y Video)... ⏳';
+    $('messages-container').appendChild(loadingDiv);
+    $('messages-container').scrollTop =$('messages-container').scrollHeight;
+    
+    const formData = new FormData();
+    formData.append("prompt", text);
+    
+    try {
+        const res = await fetch(`${BACKEND}/api/chat`, { method: "POST", body: formData });
+        const data = await res.json();
+        
+        document.getElementById(loadingId).remove();
+        appendMessage('bot', data.response, data.time, data.page, data.audio_url, data.image_url, data.wants_video);
+    } catch(err) {
+        document.getElementById(loadingId).remove();
+        appendMessage('bot', "❌ Error de conexión al procesar la solicitud.");
+    }
+};
+</script>
+</body>
+</html>
